@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-touch-fullscreen" content="no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="Description" content="澎湃，澎湃新闻，澎湃新闻网，新闻与思想，澎湃是植根于中国上海的时政思想类互联网平台，以最活跃的原创新闻与最冷静的思想分析为两翼，是互联网技术创新与新闻价值传承的结合体，致力于问答式新闻与新闻追踪功能的实践。">
+<meta name='Keywords' content="澎湃, 澎湃新闻,交互,动画,上海报业,东方早报,上海东方早报">
+<link rel="shortcut icon" href="http://www.thepaper.cn/img/thepaper.ico" type="image/x-icon">
+<link rel="icon" href="http://www.thepaper.cn/img/thepaper.ico" type="image/x-icon">
+<link href="assets/common.css" rel="stylesheet">
+<title>三峡-图集</title>
+<!--
+<script>
+var isMobile = /iPad|iPod|iPhone|Android/.test(navigator.userAgent),
+    theUrl = location.href,
+    theUrlArr = theUrl.split('/');
+
+if(isMobile){
+    window.location = theUrlArr.splice(0,theUrlArr.length-1).join('/')+'/index.html';
+}
+</script>
+-->
+<style type="text/css">
+    body{background-color:#f7f4f0;overflow:hidden;}
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar">
+<span class="logo-sanxia"></span>
+<div id="paper-share" class="share-box paper-share">
+<span class="share-title">分享</span>
+<a class="jiathis_button_weixin"></a>
+<a class="jiathis_button_tsina"></a>
+</div>
+<a class="logo" href="http://thepaper.cn"></a>
+<div class="submedia">
+<a class="link-home" href="index.html">&nbsp;</a> |&nbsp;&nbsp;
+<a class="link-album active" href="album.html">图集</a>
+<a class="link-video" href="video.html">视频</a>
+<a class="link-map" href="daba.html">动画</a>
+</div>
+</div>
+<div class="res-container">
+<div class="resource-box album">
+<ul class="cl"></ul>
+</div>
+</div>
+<div class="fullscreen">
+<div class="resource-container album">
+<div class="album-wrapper" id="album-wrapper">
+</div>
+<div class="album-button ab">
+<div class="album-arrow-left ab">
+<img src="assets/arrow-left.svg"/>
+</div>
+<div class="album-arrow-right ab">
+<img src="assets/arrow-right.svg"/>
+</div>
+</div>
+</div>
+<div class="album-pagination">
+</div>
+<div class="close-full">
+<img src="assets/close-full.svg"/>
+</div>
+</div>
+<script src="http://cdn.bootcss.com/Swiper/2.7.0/idangerous.swiper.js"></script>
+<script src="http://cdn.bootcss.com/d3/3.5.5/d3.min.js"></script>
+<script type="text/javascript">
+var Albums = Albums||{
+        albums_box:d3.select('.resource-box ul'),
+        csv:'assets/albums.csv',
+        nest_data:[],
+        load_data:function(){
+            d3.csv('assets/albums.csv',function(error,data){
+                if(error){
+                    console.log(error);
+                    return false;
+                };
+                data.forEach(function(ele){
+                    ele.id = +ele.id;
+                    ele.pic += '.jpg';
+                    ele.thumbnail += '.jpg';
+                });
+                Albums.nest_data = d3.nest()
+                        .key(function(d){return d.id;})
+                        .entries(data);
+
+                Albums.add_album_list()
+            })
+        },
+        add_album_list : function(){
+            var thumbnail = Albums.albums_box.selectAll('li')
+                            .data(Albums.nest_data)
+                            .enter()
+                            .append('li')
+                            .classed('grid-3',true)
+                            .append('div')
+                            .classed('thumbnail',true);
+            var album_thumbnail = thumbnail.append('div')
+                                    .classed('media-thumbnail',true)
+                                    .on('click',Albums.show_slide)
+                                    .append('img')
+                                    .attr('src',function(d){
+                                        return 'albums/'+d.values[0].thumbnail;
+                                    });
+            var title = thumbnail.append('div').classed('media-title',true);
+            var title_h3 = title.append('h3')
+                                .text(function(d){
+                                    return d.values[0].desc;
+                                });
+            var title_count = title.append('span').classed('media-count',true)
+                                    .text(function(d){return d.values.length;});
+            d3.select('.close-full').on('click',function(){
+                d3.select('.fullscreen').classed('show',false);
+            })
+        },
+        show_slide:function(data){
+            Albums.arrow_width =30;
+            Albums.close_width = 40;
+            var album_wrapper = d3.select('#album-wrapper')
+                                    .datum(data.values)
+                                    .attr('style','')
+                                    .text('');
+                d3.select('.album-pagination').text('');
+
+            var album_slide_update = album_wrapper.selectAll('.album-slide')
+                                            .data(function(d){return d;})
+                                            .enter()
+                                            .append('div')
+                                            .classed('album-slide',true);
+
+                album_slide_update.append('div')
+                    .classed('album-pic',true)
+                    .append('img')
+                    .attr('src',function(d){
+                        return 'albums/'+d.pic;
+                    });
+                album_slide_update.append('h3').classed('album-caption',true)
+                    .text(function(d){
+                        return d.pic_desc;
+                    });
+
+            Albums.album_swiper = new Swiper('.resource-container',{
+                                            wrapperClass:'album-wrapper',
+                                            slideClass:'album-slide',
+                                            pagination:'.album-pagination',
+                                            paginationClickable:true,
+                                            onInit:function(swiper){
+                                                Albums.cal_arrow(swiper)
+                                                Albums.cal_close_btn()
+                                            }
+                                        });
+
+            d3.select('.fullscreen').classed('show',true);
+
+            window.onresize = Albums.cal_close_btn;
+        },
+        cal_close_btn:function(){
+            var album_width = parseInt(d3.select('.album-pic').style('width'));
+            var pic_width = parseInt(d3.select('.album-pic img').style('width'));
+            var width_diff = (album_width-pic_width)/2;
+
+            d3.selectAll('.album-caption').style('width',pic_width+'px');
+
+            d3.select('.close-full')
+                .style('left',innerWidth*.1+album_width-width_diff-Albums.close_width+'px')
+                .style('top',innerHeight*.1-Albums.close_width+'px')
+                .style('opacity',1)
+        },
+        cal_arrow:function(swiper){
+            var album_width = parseInt(d3.select('.album-pic').style('width'));
+            var pic_width = parseInt(d3.select('.album-pic img').style('width'));
+            var width_diff = (album_width-pic_width)/2;
+            var arrow_left = d3.select('.album-arrow-left');
+            var arrow_right = d3.select('.album-arrow-right');
+
+            arrow_left.style('left',function(){
+                return width_diff>Albums.arrow_width?(width_diff-Albums.arrow_width*3)+'px':Albums.arrow_width+'px';
+            })
+            .on('click',function(){
+                swiper.swipePrev()
+                if(swiper.activeIndex==0){
+                    arrow_left.classed('show',false);
+                }
+            });
+
+            arrow_right.style('right',function(){;
+                return width_diff>Albums.arrow_width?(width_diff-Albums.arrow_width*3)+'px':Albums.arrow_width+'px';
+            })
+            .on('click',function(){
+                swiper.swipeNext()
+                if(swiper.activeIndex==swiper.slides.length-1){
+                    arrow_right.classed('show',false);
+                }
+            });
+
+            d3.select('.resource-container')
+                .on('mousemove',function(){
+                    var mouse_x = d3.mouse(this)[0];
+                    if(mouse_x<album_width/2&&swiper.activeIndex>0){
+                        arrow_right.classed('show',false);
+                        arrow_left.classed('show',true);
+                    }
+                    else if(mouse_x>album_width/2&&swiper.activeIndex<swiper.slides.length-1){
+                        arrow_right.classed('show',true);
+                        arrow_left.classed('show',false);
+                    }
+                })
+                .on('mouseout',function(){
+                    d3.selectAll('.album-button>div').classed('show',false);
+                });
+
+
+        }
+    };
+
+Albums.load_data();
+
+// weibo and weixin share configue;
+var directory = location.origin+location.pathname.substring(0, location.pathname.lastIndexOf('/')),
+    imgUrl = directory+"/s1.jpg",
+    shareTitle = '澎湃新闻年度作品|三峡',
+    descContent = '历时一年，行程万里，倾听、观察、记录三峡变迁。',
+    share_link=location.href;
+//jiathis_config
+var jiathis_config={
+    data_track_clickback:true,
+    hideMore:true,
+    title:shareTitle,
+    summary:descContent,
+    pic:imgUrl,
+    url:share_link,
+    appkey:{
+        "tsina":"1918686509",
+        "tqq":"1a19d5534ef00089838fea7b03410e22",
+    }
+};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1935763" charset="utf-8"></script>
+<div style='display:none'>
+</div>
+</body>
+</html>

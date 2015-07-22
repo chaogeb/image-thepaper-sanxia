@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-touch-fullscreen" content="no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="Description" content="澎湃，澎湃新闻，澎湃新闻网，新闻与思想，澎湃是植根于中国上海的时政思想类互联网平台，以最活跃的原创新闻与最冷静的思想分析为两翼，是互联网技术创新与新闻价值传承的结合体，致力于问答式新闻与新闻追踪功能的实践。">
+<meta name='Keywords' content="澎湃, 澎湃新闻,交互,动画,上海报业,东方早报,上海东方早报">
+<link rel="shortcut icon" href="../../../../img/thepaper.ico" mce_href="http://www.thepaper.cn/img/thepaper.ico" type="image/x-icon">
+<link rel="icon" href="../../../../img/thepaper.ico" mce_href="http://www.thepaper.cn/img/thepaper.ico" type="image/x-icon">
+<link href="assets/common.css" rel="stylesheet">
+<title>三峡-视频</title>
+<!--
+<script>
+var isMobile = /iPad|iPod|iPhone|Android/.test(navigator.userAgent),
+    theUrl = location.href,
+    theUrlArr = theUrl.split('/');
+
+if(isMobile){
+    window.location = theUrlArr.splice(0,theUrlArr.length-1).join('/')+'/index.html';
+}
+</script>
+-->
+<style type="text/css">
+body{background-color:#f7f4f0;overflow:hidden;}
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar">
+<span class="logo-sanxia"></span>
+<div id="paper-share" class="share-box paper-share">
+<span class="share-title">分享</span>
+<a class="jiathis_button_weixin"></a>
+<a class="jiathis_button_tsina"></a>
+</div>
+<a class="logo" href="http://thepaper.cn"></a>
+<div class="submedia">
+<a class="link-home" href="index.html">&nbsp;</a> |&nbsp;&nbsp;
+<a class="link-album" href="album.html">图集</a>
+<a class="link-video active" href="video.html">视频</a>
+<a class="link-map" href="daba.html">动画</a>
+</div>
+</div>
+<div class="res-container">
+<div class="resource-box video">
+<ul class="cl"></ul>
+</div>
+</div>
+<div class="fullscreen">
+<div class="resource-container video">
+<span class="re-video-loading"></span>
+<div class="video-play-box"></div>
+</div>
+<div class="close-full">
+<img src="assets/close-full.svg"/>
+</div>
+</div>
+<script src="http://cdn.bootcss.com/d3/3.5.5/d3.min.js"></script>
+<script type="text/javascript">
+var Videos = Videos||{
+        video_box:d3.select('.resource-box ul'),
+        win_ratio:innerWidth/innerHeight,
+        video_ratio: 16/9,
+        video_loader:d3.select('.re-video-loading'),
+        data:[
+        {"name":"01","title":"《三峡九章》预告片"},
+        {"name":"08","title":"船工、棒棒和司机"},
+        {"name":"02","title":"秭归三斗坪：靠坝吃坝"},
+        {"name":"04","title":"云阳凤鸣镇：谭言琼的生意"},
+        {"name":"05","title":"奉节竹园镇：滑坡惊魂"},
+        {"name":"06","title":"奉节安坪镇：故乡摇摇欲坠"},
+        {"name":"03","title":"万州晒网坝：如果还有鱼"},
+        {"name":"07","title":"荚山硖口镇：理解河流"}],
+
+        video_play_box:d3.select('.video-play-box'),
+
+        init:function(){
+            Videos.close_width = 40;
+            var thumbnail  = Videos.video_box.datum(Videos.data)
+                                    .selectAll('.grid-4')
+                                    .data(function(d){return d;})
+                                    .enter()
+                                    .append('li')
+                                    .classed('grid-4',true)
+                                    .on('click',Videos.play_video)
+                                    .append('div')
+                                    .classed('thumbnail',true);
+
+            var album_thumbnail = thumbnail.append('div')
+                                    .classed('media-thumbnail',true)
+                                    .append('img')
+                                    .attr('src',function(d){
+                                        return 'videos/'+d.name+'.jpg';
+                                    });
+            var title = thumbnail.append('div').classed('media-title',true);
+            var title_h3 = title.append('h3')
+                                .text(function(d){
+                                    return d.title;
+                                });
+            Videos.close_btn = d3.select('.close-full').on('click',function(){
+                        d3.select('.fullscreen').classed('show',false);
+                        d3.select('#video').node().pause();
+                    })
+        },
+        play_video:function(data){
+           Videos.video_loader.style('display','block');
+
+            var video_update = Videos.video_play_box.selectAll('video')
+                                            .data([data]);
+
+            var video_enter = video_update
+                                    .enter()
+                                    .append('video')
+                                    .attr({id:'video',controls:true,autoplay:true})
+
+                                    .attr('src',function(d){
+                                        return 'http://image.thepaper.cn/html/zt/2015/sanxia/videos/'+d.name+'.mp4'
+                                    });
+            video_update.attr('src',function(d){
+                                        return 'http://image.thepaper.cn/html/zt/2015/sanxia/videos/'+d.name+'.mp4'
+                                    });
+            var video = d3.select('#video').node();
+
+            d3.select('#video').on('progress',Videos.video_loading)
+                               .on('timeupdate',Videos.video_loading)
+                               .on('ended',function(){
+                                    setTimeout(function(){
+                                        d3.select('.fullscreen').classed('show',false);
+                                    },1000);
+                                });
+
+            d3.select('.fullscreen').classed('show',true);
+            Videos.cal_video_size();
+
+            setTimeout(Videos.cal_close_btn,2000);
+
+            window.onresize = function(){
+                Videos.cal_close_btn();
+                Videos.cal_video_size();
+            };
+        },
+        video_loading:function(){
+            if(this.readyState==4){
+                    Videos.video_loader.style('display','none');
+                }
+            if(this.readyState<this.HAVE_FUTURE_DATA){
+                Videos.video_loader.style('display','block');
+            }
+        },
+        cal_video_size:function(){
+            Videos.win_ratio = innerWidth/innerHeight;
+            d3.select('#video')
+                    .style('width',function(){
+                        return Videos.win_ratio>=Videos.video_ratio?'auto':'100%';
+                    })
+                    .style('height',function(){
+                        return Videos.win_ratio>=Videos.video_ratio?'100%':'auto';
+                    });
+
+        },
+        cal_close_btn:function(){
+            var video_rect = document.querySelector('#video').getBoundingClientRect();
+            var top = video_rect.top-Videos.close_width+'px';
+            var left = video_rect.right-Videos.close_width+'px';
+
+            Videos.close_btn.style({'top':top,'left':left,'opacity':1});
+        }
+    };
+Videos.init();
+
+// weibo and weixin share configue;
+var directory = location.origin+location.pathname.substring(0, location.pathname.lastIndexOf('/')),
+    imgUrl = directory+"/s1.jpg",
+    shareTitle = '澎湃新闻年度作品|三峡',
+    descContent = '历时一年，行程万里，倾听、观察、记录三峡变迁。',
+    share_link=location.href;
+//jiathis_config
+var jiathis_config={
+    data_track_clickback:true,
+    hideMore:true,
+    title:shareTitle,
+    summary:descContent,
+    pic:imgUrl,
+    url:share_link,
+    appkey:{
+        "tsina":"1918686509",
+        "tqq":"1a19d5534ef00089838fea7b03410e22",
+    }
+};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1935763" charset="utf-8"></script>
+<div style='display:none'>
+</div>
+</body>
+</html>
